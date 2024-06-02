@@ -5,6 +5,8 @@ from typing import (TYPE_CHECKING, Any, ClassVar, Dict, Iterable, List,
 from typing import Sequence as GenericSequence
 from typing import Set, Tuple, Type, TypeVar, Union
 
+from transformers import PreTrainedTokenizer
+
 import vllm.envs as envs
 from vllm.config import (CacheConfig, DecodingConfig, DeviceConfig,
                          EngineConfig, LoadConfig, LoRAConfig, ModelConfig,
@@ -48,7 +50,9 @@ from vllm.utils import (Counter, is_embedding_model_config,
 from vllm.version import __version__ as VLLM_VERSION
 
 logger = init_logger(__name__)
-_LOCAL_LOGGING_INTERVAL_SEC = 5
+_LOCAL_LOGGING_INTERVAL_SEC = envs.LOCAL_LOGGING_INTERVAL_SEC
+
+print(f"logging interval: {envs.LOCAL_LOGGING_INTERVAL_SEC}")
 
 
 def _load_generation_config_dict(model_config: ModelConfig) -> Dict[str, Any]:
