@@ -2,6 +2,7 @@ import time
 from typing import TYPE_CHECKING
 from typing import Counter as CollectionsCounter
 from typing import Dict, List, Optional, Type, Union, cast
+import vllm.envs as envs
 
 import numpy as np
 import prometheus_client
@@ -455,14 +456,14 @@ class LoggingStatLogger(StatLoggerBase):
                         self.last_prompt_throughput,
                         self.last_generation_throughput)):
                 # Avoid log noise on an idle production system
-                log_fn = logger.debug
+                 log_fn = logger.debug
 
             log_fn(
-                "Avg prompt throughput: %.1f tokens/s, "
-                "Avg generation throughput: %.1f tokens/s, "
-                "Running: %d reqs, Swapped: %d reqs, "
-                "Pending: %d reqs, GPU KV cache usage: %.1f%%, "
-                "CPU KV cache usage: %.1f%%.",
+                "pp: %.1f t/s, "
+                "tg: %.1f t/s, "
+                "Active: %d, Swapped: %d, "
+                "Queued: %d, GPU KV: %.1f%%, "
+                "CPU KV: %.1f%%.",
                 prompt_throughput,
                 generation_throughput,
                 stats.num_running_sys,
@@ -478,10 +479,10 @@ class LoggingStatLogger(StatLoggerBase):
                     stats.gpu_prefix_cache_hit_rate * 100,
                     stats.cpu_prefix_cache_hit_rate * 100,
                 )
-            if self.spec_decode_metrics is not None:
+            if stats.spec_decode_metrics is not None:
                 logger.info(
                     self._format_spec_decode_metrics_str(
-                        self.spec_decode_metrics))
+                        stats.spec_decode_metrics))
 
             self._reset(stats, prompt_throughput, generation_throughput)
 
@@ -498,16 +499,15 @@ class LoggingStatLogger(StatLoggerBase):
             self, metrics: "SpecDecodeWorkerMetrics") -> str:
 
         return ("Speculative metrics: "
-                f"Draft acceptance rate: {metrics.draft_acceptance_rate:.3f}, "
-                f"System efficiency: {metrics.system_efficiency:.3f}, "
-                f"Number of speculative tokens: {metrics.num_spec_tokens}, "
-                f"Number of accepted tokens: {metrics.accepted_tokens}, "
-                f"Number of draft tokens: {metrics.draft_tokens}, "
-                f"Number of emitted tokens: {metrics.emitted_tokens}.")
+                f"Draft acceptance: {metrics.draft_acceptance_rate:.3f}, "
+                f"Sys. efficiency: {metrics.system_efficiency:.3f}, "
+                f"# speculative tokens: {metrics.num_spec_tokens}, "
+                f"# accepted tokens: {metrics.accepted_tokens}, "
+                f"# draft tokens: {metrics.draft_tokens}, "
+                f"# emitted tokens: {metrics.emitted_tokens}.")
 
     def info(self, type: str, obj: SupportsMetricsInfo) -> None:
         raise NotImplementedError
-
 
 class PrometheusStatLogger(StatLoggerBase):
     """PrometheusStatLogger is used LLMEngine to log to Promethus."""
@@ -704,7 +704,6 @@ class PrometheusStatLogger(StatLoggerBase):
                 labelnames=metrics_info.keys(),
                 multiprocess_mode="mostrecent")
             info_gauge.labels(**metrics_info).set(1)
-
 
 class RayPrometheusStatLogger(PrometheusStatLogger):
     """RayPrometheusStatLogger uses Ray metrics instead."""

@@ -12,6 +12,8 @@ from typing import Set, Type, Union, cast, overload
 import torch
 from typing_extensions import TypeVar
 
+from transformers import PreTrainedTokenizer
+
 import vllm.envs as envs
 from vllm.config import (DecodingConfig, LoRAConfig, ModelConfig,
                          ObservabilityConfig, ParallelConfig, SchedulerConfig,
@@ -63,7 +65,9 @@ from vllm.utils import Counter, Device, deprecate_kwargs, weak_bind
 from vllm.version import __version__ as VLLM_VERSION
 
 logger = init_logger(__name__)
-_LOCAL_LOGGING_INTERVAL_SEC = 5
+_LOCAL_LOGGING_INTERVAL_SEC = envs.LOCAL_LOGGING_INTERVAL_SEC
+
+print(f"logging interval: {envs.LOCAL_LOGGING_INTERVAL_SEC}")
 
 
 def _load_generation_config_dict(model_config: ModelConfig) -> Dict[str, Any]:

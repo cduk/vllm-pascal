@@ -3,6 +3,8 @@ import tempfile
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional
 
 if TYPE_CHECKING:
+    LOCAL_LOGGING_INTERVAL_SEC: Optional[int] = 5
+    NO_LOG_ON_IDLE: Optional[int] = None
     VLLM_HOST_IP: str = ""
     VLLM_PORT: Optional[int] = None
     VLLM_RPC_BASE_PATH: str = tempfile.gettempdir()
@@ -71,13 +73,11 @@ if TYPE_CHECKING:
     VLLM_USE_V1: bool = False
     VLLM_ENABLE_V1_MULTIPROCESSING: bool = False
 
-
 def get_default_cache_root():
     return os.getenv(
         "XDG_CACHE_HOME",
         os.path.join(os.path.expanduser("~"), ".cache"),
     )
-
 
 def get_default_config_root():
     return os.getenv(
@@ -168,6 +168,19 @@ environment_variables: Dict[str, Callable[[], Any]] = {
     # multi-processing mode to communicate with the backend engine process.
     'VLLM_RPC_BASE_PATH':
     lambda: os.getenv('VLLM_RPC_BASE_PATH', tempfile.gettempdir()),
+    # used when the frontend api server is running in multi-processing mode,
+    # to communicate with the backend engine process over ZMQ.
+    'VLLM_RPC_PORT':
+    lambda: int(os.getenv('VLLM_RPC_PORT', '5570')),
+
+    # set logging interval
+    'LOCAL_LOGGING_INTERVAL_SEC':
+    lambda: int(os.getenv('LOCAL_LOGGING_INTERVAL_SEC', 5)),
+
+    # suppress log output when idle
+    'NO_LOG_ON_IDLE':
+    lambda: int(os.getenv('NO_LOG_ON_IDLE', '0'))
+    if 'NO_LOG_ON_IDLE' in os.environ else None,
 
     # If true, will load models from ModelScope instead of Hugging Face Hub.
     # note that the value is true or false, not numbers
