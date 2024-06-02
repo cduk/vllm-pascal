@@ -36,6 +36,8 @@ if TYPE_CHECKING:
     VLLM_INSTALL_PUNICA_KERNELS: bool = False
     CMAKE_BUILD_TYPE: Optional[str] = None
     VERBOSE: bool = False
+    LOCAL_LOGGING_INTERVAL_SEC: Optional[int] = 5
+    NO_LOG_ON_IDLE: Optional[int] = None
 
 # The begin-* and end* here are used by the documentation generator
 # to extract the used env vars.
@@ -102,6 +104,15 @@ environment_variables: Dict[str, Callable[[], Any]] = {
     'VLLM_PORT':
     lambda: int(os.getenv('VLLM_PORT', '0'))
     if 'VLLM_PORT' in os.environ else None,
+
+    # set logging interval
+    'LOCAL_LOGGING_INTERVAL_SEC':
+    lambda: int(os.getenv('LOCAL_LOGGING_INTERVAL_SEC', 5)),
+
+    # suppress log output when idle
+    'NO_LOG_ON_IDLE':
+    lambda: int(os.getenv('NO_LOG_ON_IDLE', '0'))
+    if 'NO_LOG_ON_IDLE' in os.environ else None,
 
     # If true, will load models from ModelScope instead of Hugging Face Hub.
     # note that the value is true or false, not numbers
