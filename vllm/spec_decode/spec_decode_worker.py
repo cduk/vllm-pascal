@@ -970,6 +970,7 @@ class SpecDecodeWorker(LoraNotSupportedWorkerBase):
             worker.vocab_size
             for worker in [self.proposer_worker, self.scorer_worker]
         ]
+        print(f"Vocab sizes: {vocab_sizes}")
         assert all(vocab_sizes[0] == vocab_size for vocab_size in vocab_sizes)
         return vocab_sizes[0]
 
