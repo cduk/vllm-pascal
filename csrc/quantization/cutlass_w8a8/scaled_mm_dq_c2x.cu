@@ -1,6 +1,8 @@
 #include <stddef.h>
 #include <torch/extension.h>
 
+#include <ATen/cuda/CUDAContext.h>
+
 // clang-format will break include orders
 // clang-format off
 #include "cute/tensor.hpp"
@@ -20,7 +22,7 @@
 #include "cutlass/epilogue/threadblock/fusion/visitors.hpp"
 #include "cutlass/gemm/kernel/default_gemm_universal_with_visitor.h"
 
-#include "cutlass_visitor_2x_broadcast_epilogue.hpp"
+#include "broadcast_load_epilogue_c2x.hpp"
 #include "common.hpp"
 // clang-format on
 
@@ -143,17 +145,11 @@ void cutlass_scaled_mm_dq_dispatcher(torch::Tensor& out, torch::Tensor const& a,
   auto a_scales_ptr = a_scales.data_ptr<float>();
   auto b_scales_ptr = b_scales.data_ptr<float>();
 
-  // If A and B are quantized per-tensor, then these scale tensors are scalars,
-  // and they are passed in via the second argument.
   using ScaleAArgs = typename Gemm::ScaleA::Arguments;
-  ScaleAArgs a_args = a_scales.numel() == 1
-                          ? ScaleAArgs{nullptr, a_scales.item<float>(), {}}
-                          : ScaleAArgs{a_scales.data_ptr<float>(), {}, {}};
-
   using ScaleBArgs = typename Gemm::ScaleB::Arguments;
-  ScaleBArgs b_args = b_scales.numel() == 1
-                          ? ScaleBArgs{nullptr, b_scales.item<float>(), {}}
-                          : ScaleBArgs{b_scales.data_ptr<float>(), {}, {}};
+
+  ScaleBArgs b_args{b_scales.data_ptr<float>(), b_scales.numel() != 1, {}};
+  ScaleAArgs a_args{a_scales.data_ptr<float>(), a_scales.numel() != 1, {}};
 
   typename Gemm::EVTCompute0::Arguments evt0_compute_args{b_args};
 
@@ -189,8 +185,10 @@ void cutlass_scaled_mm_dq_dispatcher(torch::Tensor& out, torch::Tensor const& a,
   size_t workspace_size = gemm_op.get_workspace_size(args);
   cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
 
+  auto stream = at::cuda::getCurrentCUDAStream(a.get_device());
+
   CUTLASS_CHECK(gemm_op.can_implement(args));
-  cutlass::Status status = gemm_op(args, workspace.get());
+  cutlass::Status status = gemm_op(args, workspace.get(), stream);
   CUTLASS_CHECK(status);
 }
 
