@@ -224,3 +224,6 @@ ENV VLLM_USAGE_SOURCE production-docker-image
 
 ENTRYPOINT ["python3", "-m", "vllm.entrypoints.openai.api_server"]
 #################### OPENAI API SERVER ####################
+
+RUN --mount=type=cache,target=/root/.cache/pip \
+    python3 -m pip install --index-url https://sasha0552.github.io/vllm-ci/ --force-reinstall --no-deps triton
