@@ -1,0 +1,2 @@
+#!/bin/bash
+DOCKER_BUILDKIT=1 docker build . --target vllm-openai --tag cduk/vllm --build-arg max_jobs=8 --build-arg nvcc_threads=8
