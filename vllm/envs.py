@@ -144,18 +144,16 @@ environment_variables: Dict[str, Callable[[], Any]] = {
     lambda: int(os.getenv('VLLM_PORT', '0'))
     if 'VLLM_PORT' in os.environ else None,
 
-<<<<<<< HEAD
     # path used for ipc when the frontend api server is running in
     # multi-processing mode to communicate with the backend engine process.
     'VLLM_RPC_BASE_PATH':
     lambda: os.getenv('VLLM_RPC_BASE_PATH', tempfile.gettempdir()),
-=======
-<<<<<<< HEAD
+
     # used when the frontend api server is running in multi-processing mode,
     # to communicate with the backend engine process over ZMQ.
     'VLLM_RPC_PORT':
     lambda: int(os.getenv('VLLM_RPC_PORT', '5570')),
-=======
+
     # set logging interval
     'LOCAL_LOGGING_INTERVAL_SEC':
     lambda: int(os.getenv('LOCAL_LOGGING_INTERVAL_SEC', 5)),
@@ -164,8 +162,6 @@ environment_variables: Dict[str, Callable[[], Any]] = {
     'NO_LOG_ON_IDLE':
     lambda: int(os.getenv('NO_LOG_ON_IDLE', '0'))
     if 'NO_LOG_ON_IDLE' in os.environ else None,
->>>>>>> f94973e9 (Add options to reduce metric outputs when idle)
->>>>>>> 70444504 (Add options to reduce metric outputs when idle)
 
     # If true, will load models from ModelScope instead of Hugging Face Hub.
     # note that the value is true or false, not numbers
