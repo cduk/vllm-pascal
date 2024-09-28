@@ -1,2 +1,2 @@
 #!/bin/bash
-DOCKER_BUILDKIT=1 docker build . --target vllm-openai --tag cduk/vllm --build-arg max_jobs=8 --build-arg nvcc_threads=8 --build-arg torch_cuda_arch_list="6.0 6.1 7.5 8.6+PTX" --build-arg vllm_fa_cmake_gpu_arches='80-real'
+DOCKER_BUILDKIT=1 docker build . --target vllm-openai --tag cduk/vllm --build-arg max_jobs=8 --build-arg nvcc_threads=8 --build-arg torch_cuda_arch_list="6.0 6.1 7.5 8.6+PTX" --build-arg vllm_fa_cmake_gpu_arches='80-real' --progress=plain
