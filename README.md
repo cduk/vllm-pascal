@@ -1,3 +1,10 @@
+# vllm-ci
+
+> [!IMPORTANT]
+This repository has been discontinued in favor of [pascal-pkgs-ci](https://github.com/sasha0552/pascal-pkgs-ci).
+
+---
+
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/vllm-project/vllm/main/docs/source/assets/logos/vllm-logo-text-dark.png">
