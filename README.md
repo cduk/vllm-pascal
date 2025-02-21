@@ -1,4 +1,4 @@
-# vllm-ci
+# vllm-pascal
 
 > [!IMPORTANT]
 This repository has been discontinued in favor of [pascal-pkgs-ci](https://github.com/sasha0552/pascal-pkgs-ci).
